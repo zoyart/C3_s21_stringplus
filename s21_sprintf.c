@@ -120,11 +120,15 @@ void write_digits(char *str, int *ch_count, long long num) {
     str[(*ch_count)++] = '0' + (num % 10);
 }
 
+/*
+    Функционал:
+        С помощью рекурсии считаем кол-во символов
+*/
 int count_digits(long long num) {
-    if (num < 0) num = -num;
+    if (num < 0) num = -num; // минус не считаем
     
     if (num < 10) {
-        return 1;  // Последняя цифра
+        return 1;
     }
     
     return 1 + count_digits(num / 10);  // Текущая цифра + остальные
@@ -202,11 +206,55 @@ void perform_d(Spec spec, char *str, int *ch_count, va_list *args) {
 }
 
 void perform_c(Spec spec, char *str, int *ch_count, va_list *args) {
+    // NOTE: char автоматически повышается до int при передаче через ..., 
+    // поэтому va_arg(*args, int), а потом кастовать обратно в char.
+    char ch = (char)va_arg(*args, int);
+    int ch_len = 1;
 
+    // Пробелы слева (без флага -)
+    if (spec.width && !spec.flag_minus) {
+        for (int k = 0; k < spec.width - ch_len; k++) {
+            str[(*ch_count)++] = ' ';
+        }
+    }
+
+    str[(*ch_count)++] = ch;
+
+    // Пробелы справа (флаг -)
+    if (spec.width && spec.flag_minus) {
+        for (int k = 0; k < spec.width - ch_len; k++) {
+            str[(*ch_count)++] = ' ';
+        }
+    }
 }
 
+/*
+    NOTE:  точность применяется ДО ширины
+    printf("%10.5s", "HelloWorld");
+    Hello -> сначала точность
+         Hello -> потом добавляется ширина
+*/
 void perform_s(Spec spec, char *str, int *ch_count, va_list *args) {
+    char *arg_str = va_arg(*args, char *);
 
+    // Пробелы слева (без флага -)
+    if (spec.width && !spec.flag_minus) {
+        for (int k = 0; k < spec.width - strlen(arg_str); k++) {
+            str[(*ch_count)++] = ' ';
+        }
+    }
+
+    for (int i = 0; i < strlen(str); i++) {
+        str[(*ch_count)++] = arg_str[i];
+    }
+    
+
+    // Пробелы справа (флаг -)
+    if (spec.width && spec.flag_minus) {
+        for (int k = 0; k < spec.width - strlen(arg_str); k++) {
+            str[(*ch_count)++] = ' ';
+        }
+    }
 }
 
 void perform_f(Spec spec, char *str, int *ch_count, va_list *args) {

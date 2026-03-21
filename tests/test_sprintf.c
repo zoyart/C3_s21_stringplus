@@ -4,6 +4,9 @@
 #include <stdio.h>
 #include <string.h>
 
+/*
+    SPEC D
+*/
 START_TEST(test_d_positive_num)
 {
     char my_buff[100];
@@ -196,6 +199,63 @@ START_TEST(test_d_combination_negative)
 }
 END_TEST
 
+/*
+    SPEC C
+*/
+START_TEST(test_c_width)
+{
+    char my_buff[100];
+    char orig_buff[100];
+    char ch = 'w';
+
+    s21_sprintf(my_buff, "Some %5c text", ch);
+    sprintf(orig_buff, "Some %5c text", ch);
+    ck_assert_str_eq(my_buff, orig_buff);
+}
+END_TEST
+
+START_TEST(test_c_minus_flag)
+{
+    char my_buff[100];
+    char orig_buff[100];
+    char ch = 'w';
+
+    s21_sprintf(my_buff, "Some %-5c text", ch);
+    sprintf(orig_buff, "Some %-5c text", ch);
+    ck_assert_str_eq(my_buff, orig_buff);
+}
+END_TEST
+
+/*
+    SPEC S
+*/
+START_TEST(test_s_width)
+{
+    char my_buff[100];
+    char orig_buff[100];
+    char *str = "other";
+
+    s21_sprintf(my_buff, "Some %3c text", str);
+    sprintf(orig_buff, "Some %3c text", str);
+    ck_assert_str_eq(my_buff, orig_buff);
+}
+END_TEST
+
+START_TEST(test_s_minus_flag)
+{
+    char my_buff[100];
+    char orig_buff[100];
+    char *str = "other";
+
+    s21_sprintf(my_buff, "Some %-5s text", str);
+    sprintf(orig_buff, "Some %-5s text", str);
+    ck_assert_str_eq(my_buff, orig_buff);
+}
+END_TEST
+
+/*
+    COMMON
+*/
 START_TEST(test_skipping_sequence)
 {
     char my_buff[100];
@@ -220,24 +280,38 @@ Suite *sprintf_suite(void) {
     tcase_add_test(spec_d, test_d_width);
     tcase_add_test(spec_d, test_d_width_negative_num);
     tcase_add_test(spec_d, test_d_precision);
+
     tcase_add_test(spec_d, test_d_precision_zero);
     tcase_add_test(spec_d, test_d_width_and_precision);
     tcase_add_test(spec_d, test_d_minus_flag);
     tcase_add_test(spec_d, test_d_plus_flag);
     tcase_add_test(spec_d, test_d_plus_flag_negative);
+
     tcase_add_test(spec_d, test_d_space_flag);
     tcase_add_test(spec_d, test_d_space_flag_plus);
     tcase_add_test(spec_d, test_d_h_length);
     tcase_add_test(spec_d, test_d_l_length);
     tcase_add_test(spec_d, test_d_combination);
+    
     tcase_add_test(spec_d, test_d_combination_negative);
+
+    TCase *spec_c = tcase_create("specifier_c");
+    tcase_add_test(spec_c, test_c_width);
+    tcase_add_test(spec_c, test_c_minus_flag);
+
+    TCase *spec_s = tcase_create("specifier_s");
+    tcase_add_test(spec_s, test_s_width);
+    tcase_add_test(spec_s, test_s_minus_flag);
 
     TCase *common = tcase_create("common");
     tcase_add_test(common, test_skipping_sequence);
-    
+
     // Добавляем Test Case в Suite
     suite_add_tcase(s, spec_d);
+    suite_add_tcase(s, spec_c);
+    suite_add_tcase(s, spec_s);
     suite_add_tcase(s, common);
+
     return s;
 }
 
