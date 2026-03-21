@@ -19,5 +19,6 @@ void perform_d(Spec spec, char *str, int *ch_coun, va_list *args);
 void perform_c(Spec spec, char *str, int *ch_count, va_list *args);
 void perform_s(Spec spec, char *str, int *ch_count, va_list *args);
 void perform_f(Spec spec, char *str, int *ch_count, va_list *args);
+void perform_u(Spec spec, char *str, int *ch_count, va_list *args);
 
 #endif

@@ -45,6 +45,9 @@ int s21_sprintf(char *str, const char *format, ...) {
                 case 'f':
                     perform_f(spec, str, &ch_count, &args);
                     break;
+                case 'u':
+                    perform_u(spec, str, &ch_count, &args);
+                    break;
                 case '%':
                     str[ch_count++] = '%';
                     break;
@@ -260,6 +263,10 @@ void perform_s(Spec spec, char *str, int *ch_count, va_list *args) {
             str[(*ch_count)++] = ' ';
         }
     }
+}
+
+void perform_u(Spec spec, char *str, int *ch_count, va_list *args) {
+
 }
 
 void perform_f(Spec spec, char *str, int *ch_count, va_list *args) {
