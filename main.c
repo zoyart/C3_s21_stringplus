@@ -4,9 +4,9 @@
 
 int main () {
     char buff1[100];
-    char str1[] = "So%8.5d";
-    int a = -42;
-    s21_sprintf(buff1, str1, a);
+    char str1[] = "Some %s aga";
+    char str[] = "text";
+    s21_sprintf(buff1, str1, str);
     printf("Res is: %s\n", buff1);
     
     return 0;

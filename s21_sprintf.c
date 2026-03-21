@@ -236,22 +236,27 @@ void perform_c(Spec spec, char *str, int *ch_count, va_list *args) {
 */
 void perform_s(Spec spec, char *str, int *ch_count, va_list *args) {
     char *arg_str = va_arg(*args, char *);
+    int arg_str_len = strlen(arg_str);
+
+    if (spec.has_precision && spec.precision < arg_str_len) {
+        arg_str_len = spec.precision;
+    }
 
     // Пробелы слева (без флага -)
     if (spec.width && !spec.flag_minus) {
-        for (int k = 0; k < spec.width - strlen(arg_str); k++) {
+        for (int k = 0; k < spec.width - arg_str_len; k++) {
             str[(*ch_count)++] = ' ';
         }
     }
 
-    for (int i = 0; i < strlen(str); i++) {
+    for (int i = 0; i < arg_str_len; i++) {
         str[(*ch_count)++] = arg_str[i];
     }
     
 
     // Пробелы справа (флаг -)
     if (spec.width && spec.flag_minus) {
-        for (int k = 0; k < spec.width - strlen(arg_str); k++) {
+        for (int k = 0; k < spec.width - arg_str_len; k++) {
             str[(*ch_count)++] = ' ';
         }
     }

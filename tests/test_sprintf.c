@@ -235,8 +235,44 @@ START_TEST(test_s_width)
     char orig_buff[100];
     char *str = "other";
 
-    s21_sprintf(my_buff, "Some %3c text", str);
-    sprintf(orig_buff, "Some %3c text", str);
+    s21_sprintf(my_buff, "Some %3s text", str);
+    sprintf(orig_buff, "Some %3s text", str);
+    ck_assert_str_eq(my_buff, orig_buff);
+}
+END_TEST
+
+START_TEST(test_s_width_more)
+{
+    char my_buff[100];
+    char orig_buff[100];
+    char *str = "other";
+
+    s21_sprintf(my_buff, "Some %6s text", str);
+    sprintf(orig_buff, "Some %6s text", str);
+    ck_assert_str_eq(my_buff, orig_buff);
+}
+END_TEST
+
+START_TEST(test_s_precision)
+{
+    char my_buff[100];
+    char orig_buff[100];
+    char *str = "other";
+
+    s21_sprintf(my_buff, "Some %.3s text", str);
+    sprintf(orig_buff, "Some %.3s text", str);
+    ck_assert_str_eq(my_buff, orig_buff);
+}
+END_TEST
+
+START_TEST(test_s_precision_and_width)
+{
+    char my_buff[100];
+    char orig_buff[100];
+    char *str = "other";
+
+    s21_sprintf(my_buff, "Some %6.3s text", str);
+    sprintf(orig_buff, "Some %6.3s text", str);
     ck_assert_str_eq(my_buff, orig_buff);
 }
 END_TEST
@@ -249,6 +285,18 @@ START_TEST(test_s_minus_flag)
 
     s21_sprintf(my_buff, "Some %-5s text", str);
     sprintf(orig_buff, "Some %-5s text", str);
+    ck_assert_str_eq(my_buff, orig_buff);
+}
+END_TEST
+
+START_TEST(test_s_default)
+{
+    char my_buff[100];
+    char orig_buff[100];
+    char *str = "other";
+
+    s21_sprintf(my_buff, "Some %s text", str);
+    sprintf(orig_buff, "Some %s text", str);
     ck_assert_str_eq(my_buff, orig_buff);
 }
 END_TEST
@@ -300,8 +348,12 @@ Suite *sprintf_suite(void) {
     tcase_add_test(spec_c, test_c_minus_flag);
 
     TCase *spec_s = tcase_create("specifier_s");
+    tcase_add_test(spec_s, test_s_default);
     tcase_add_test(spec_s, test_s_width);
+    tcase_add_test(spec_s, test_s_width_more);
     tcase_add_test(spec_s, test_s_minus_flag);
+    tcase_add_test(spec_s, test_s_precision);
+    tcase_add_test(spec_s, test_s_precision_and_width);
 
     TCase *common = tcase_create("common");
     tcase_add_test(common, test_skipping_sequence);
