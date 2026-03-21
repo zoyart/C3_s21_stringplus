@@ -115,7 +115,7 @@ void parsing_specifiers(int *idx, const char *format, Spec *spec) {
     Функционал:
         С помощью рекурсии преобразуем число в символ 
 */
-void write_digits(char *str, int *ch_count, long long num) {
+void write_digits(char *str, int *ch_count, long num) {
     if (num >= 10) {
         write_digits(str, ch_count, num / 10);
     }
@@ -127,7 +127,7 @@ void write_digits(char *str, int *ch_count, long long num) {
     Функционал:
         С помощью рекурсии считаем кол-во символов
 */
-int count_digits(long long num) {
+int count_digits(long num) {
     if (num < 0) num = -num; // минус не считаем
     
     if (num < 10) {
@@ -137,8 +137,7 @@ int count_digits(long long num) {
     return 1 + count_digits(num / 10);  // Текущая цифра + остальные
 }
 
-// для d и u, при u просто передаёт unsigned long long
-void write_int(Spec spec, char *str, int *ch_count, long long num) {
+void write_int(Spec spec, char *str, int *ch_count, long num) {
     int digits_in_num = count_digits(num);
 
     // Учитываем символ '+' или ' ' в ширине и если число отрицательное
@@ -170,7 +169,7 @@ void write_int(Spec spec, char *str, int *ch_count, long long num) {
     }
 
     // Сочетание precision = 0 и значение = 0 - даёт пропуск
-    if (!(spec.precision == 0 && num == 0)) {
+    if (!(spec.has_precision && spec.precision == 0 && num == 0)) {
         write_digits(str, ch_count, num);
     }
 
@@ -182,13 +181,46 @@ void write_int(Spec spec, char *str, int *ch_count, long long num) {
     }
 }
 
-void set_plus(Spec spec, char *str, int *ch_count, long long num) {
+void write_unsigned_int(Spec spec, char *str, int *ch_count, unsigned long num) {
+    int digits_in_num = count_digits(num);
+
+    int real_width = (spec.has_precision && spec.precision > digits_in_num) 
+        ? spec.precision  // precision задаёт минимум цифр
+        : digits_in_num;  // иначе просто цифры числа
+
+    // Пробелы слева (без флага -)
+    if (spec.width && !spec.flag_minus) {
+        for (int k = 0; k < spec.width - real_width; k++) {
+            str[(*ch_count)++] = ' ';
+        }
+    }
+
+    if (spec.has_precision) {
+        for (int k = 0; k < spec.precision - digits_in_num; k++) {
+            str[(*ch_count)++] = '0';
+        }
+    }
+
+    // Сочетание precision = 0 и значение = 0 - даёт пропуск
+    if (!(spec.has_precision && spec.precision == 0 && num == 0)) {
+        write_digits(str, ch_count, num);
+    }
+
+    // Пробелы справа (флаг -)
+    if (spec.width && spec.flag_minus) {
+        for (int k = 0; k < spec.width - real_width; k++) {
+            str[(*ch_count)++] = ' ';
+        }
+    }
+}
+
+void set_plus(Spec spec, char *str, int *ch_count, long num) {
     if (spec.flag_plus && num >= 0) {
         str[(*ch_count)++] = '+';
     }
 }
 
-void set_space(Spec spec, char *str, int *ch_count, long long num) {
+void set_space(Spec spec, char *str, int *ch_count, long num) {
     // NOTE: у плюса больше приоритет над пробелом
     if (spec.flag_space && !spec.flag_plus && num >= 0) {
         str[(*ch_count)++] = ' ';
@@ -196,7 +228,7 @@ void set_space(Spec spec, char *str, int *ch_count, long long num) {
 }
 
 void perform_d(Spec spec, char *str, int *ch_count, va_list *args) {
-    long long num; // Делаем самый большой тип, чтобы была возможность ужать
+    long num; // Делаем самый большой тип, чтобы была возможность ужать
     if (spec.length == 'l') {
         num = va_arg(*args, long);
     } else if (spec.length == 'h') {
@@ -206,6 +238,19 @@ void perform_d(Spec spec, char *str, int *ch_count, va_list *args) {
     }
 
     write_int(spec, str, ch_count, num);  
+}
+
+void perform_u(Spec spec, char *str, int *ch_count, va_list *args) {
+    unsigned long num; // Делаем самый большой тип, чтобы была возможность ужать
+    if (spec.length == 'l') {
+        num = va_arg(*args, unsigned long);
+    } else if (spec.length == 'h') {
+        num = (unsigned short)va_arg(*args, int);
+    } else {
+        num = va_arg(*args, unsigned int);
+    }
+
+    write_unsigned_int(spec, str, ch_count, num);  
 }
 
 void perform_c(Spec spec, char *str, int *ch_count, va_list *args) {
@@ -263,10 +308,6 @@ void perform_s(Spec spec, char *str, int *ch_count, va_list *args) {
             str[(*ch_count)++] = ' ';
         }
     }
-}
-
-void perform_u(Spec spec, char *str, int *ch_count, va_list *args) {
-
 }
 
 void perform_f(Spec spec, char *str, int *ch_count, va_list *args) {

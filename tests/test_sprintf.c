@@ -199,6 +199,155 @@ START_TEST(test_d_combination_negative)
 }
 END_TEST
 
+
+/*
+    SPEC U
+*/
+START_TEST(test_u_positive_num)
+{
+    char my_buff[100];
+    char orig_buff[100];
+    unsigned int num = 123;
+    s21_sprintf(my_buff, "Some %utext", num);
+    sprintf(orig_buff, "Some %utext", num);
+    ck_assert_str_eq(my_buff, orig_buff);
+}
+END_TEST
+
+START_TEST(test_u_zero)
+{
+    char my_buff[100];
+    char orig_buff[100];
+    unsigned int num = 0;
+    s21_sprintf(my_buff, "Some %utext", num);
+    sprintf(orig_buff, "Some %utext", num);
+    ck_assert_str_eq(my_buff, orig_buff);
+}
+END_TEST
+
+// Специфично для u — большое значение, которое у d было бы отрицательным
+START_TEST(test_u_large_num)
+{
+    char my_buff[100];
+    char orig_buff[100];
+    unsigned int num = 4294967295U; // UINT_MAX
+    s21_sprintf(my_buff, "Some %utext", num);
+    sprintf(orig_buff, "Some %utext", num);
+    ck_assert_str_eq(my_buff, orig_buff);
+}
+END_TEST
+
+START_TEST(test_u_width)
+{
+    char my_buff[100];
+    char orig_buff[100];
+    unsigned int num = 42;
+    s21_sprintf(my_buff, "Some %5utext", num);
+    sprintf(orig_buff, "Some %5utext", num);
+    ck_assert_str_eq(my_buff, orig_buff);
+}
+END_TEST
+
+START_TEST(test_u_precision)
+{
+    char my_buff[100];
+    char orig_buff[100];
+    unsigned int num = 42;
+    s21_sprintf(my_buff, "Some %.5utext", num);
+    sprintf(orig_buff, "Some %.5utext", num);
+    ck_assert_str_eq(my_buff, orig_buff);
+}
+END_TEST
+
+START_TEST(test_u_precision_zero)
+{
+    char my_buff[100];
+    char orig_buff[100];
+    unsigned int num = 0;
+    s21_sprintf(my_buff, "Some %.0utext", num);
+    sprintf(orig_buff, "Some %.0utext", num);
+    ck_assert_str_eq(my_buff, orig_buff);
+}
+END_TEST
+
+START_TEST(test_u_width_and_precision)
+{
+    char my_buff[100];
+    char orig_buff[100];
+    unsigned int num = 8;
+    s21_sprintf(my_buff, "Some %4.2utext", num);
+    sprintf(orig_buff, "Some %4.2utext", num);
+    ck_assert_str_eq(my_buff, orig_buff);
+}
+END_TEST
+
+START_TEST(test_u_minus_flag)
+{
+    char my_buff[100];
+    char orig_buff[100];
+    unsigned int num = 42;
+    s21_sprintf(my_buff, "Some %-5utext", num);
+    sprintf(orig_buff, "Some %-5utext", num);
+    ck_assert_str_eq(my_buff, orig_buff);
+}
+END_TEST
+
+// Проверяем что + и пробел игнорируются для u
+START_TEST(test_u_plus_flag_ignored)
+{
+    char my_buff[100];
+    char orig_buff[100];
+    unsigned int num = 42;
+    s21_sprintf(my_buff, "Some %+utext", num);
+    sprintf(orig_buff, "Some %+utext", num);
+    ck_assert_str_eq(my_buff, orig_buff);
+}
+END_TEST
+
+START_TEST(test_u_space_flag_ignored)
+{
+    char my_buff[100];
+    char orig_buff[100];
+    unsigned int num = 42;
+    s21_sprintf(my_buff, "Some % utext", num);
+    sprintf(orig_buff, "Some % utext", num);
+    ck_assert_str_eq(my_buff, orig_buff);
+}
+END_TEST
+
+START_TEST(test_u_h_length)
+{
+    char my_buff[100];
+    char orig_buff[100];
+    unsigned short num = 123;
+    s21_sprintf(my_buff, "Some %hutext", num);
+    sprintf(orig_buff, "Some %hutext", num);
+    ck_assert_str_eq(my_buff, orig_buff);
+}
+END_TEST
+
+START_TEST(test_u_l_length)
+{
+    char my_buff[100];
+    char orig_buff[100];
+    unsigned long num = 123456UL;
+    s21_sprintf(my_buff, "Some %lutext", num);
+    sprintf(orig_buff, "Some %lutext", num);
+    ck_assert_str_eq(my_buff, orig_buff);
+}
+END_TEST
+
+START_TEST(test_u_combination)
+{
+    char my_buff[100];
+    char orig_buff[100];
+    unsigned int num = 42;
+    s21_sprintf(my_buff, "Val: %-8.5u end", num);
+    sprintf(orig_buff, "Val: %-8.5u end", num);
+    ck_assert_str_eq(my_buff, orig_buff);
+}
+END_TEST
+
 /*
     SPEC C
 */
@@ -340,8 +489,22 @@ Suite *sprintf_suite(void) {
     tcase_add_test(spec_d, test_d_h_length);
     tcase_add_test(spec_d, test_d_l_length);
     tcase_add_test(spec_d, test_d_combination);
-    
     tcase_add_test(spec_d, test_d_combination_negative);
+
+    TCase *spec_u = tcase_create("specifier_u");
+    tcase_add_test(spec_u, test_u_positive_num);
+    tcase_add_test(spec_u, test_u_zero);
+    tcase_add_test(spec_u, test_u_large_num);
+    tcase_add_test(spec_u, test_u_width);
+    tcase_add_test(spec_u, test_u_precision);
+    tcase_add_test(spec_u, test_u_precision_zero);
+    tcase_add_test(spec_u, test_u_width_and_precision);
+    tcase_add_test(spec_u, test_u_minus_flag);
+    tcase_add_test(spec_u, test_u_plus_flag_ignored);
+    tcase_add_test(spec_u, test_u_space_flag_ignored);
+    tcase_add_test(spec_u, test_u_h_length);
+    tcase_add_test(spec_u, test_u_l_length);
+    tcase_add_test(spec_u, test_u_combination);
 
     TCase *spec_c = tcase_create("specifier_c");
     tcase_add_test(spec_c, test_c_width);
@@ -360,6 +523,7 @@ Suite *sprintf_suite(void) {
 
     // Добавляем Test Case в Suite
     suite_add_tcase(s, spec_d);
+    suite_add_tcase(s, spec_u);
     suite_add_tcase(s, spec_c);
     suite_add_tcase(s, spec_s);
     suite_add_tcase(s, common);
