@@ -34,16 +34,16 @@ int s21_sprintf(char *str, const char *format, ...) {
             parsing_specifiers(&i, format, &spec);
             switch(spec.specifier) {
                 case 'd':
-                    perform_d(spec, str, &ch_count, args);
+                    perform_d(spec, str, &ch_count, &args);
                     break;
                 case 'c':
-                    perform_c(spec, str, &ch_count, args);
+                    perform_c(spec, str, &ch_count, &args);
                     break;
                 case 's':
-                    perform_s(spec, str, &ch_count, args);
+                    perform_s(spec, str, &ch_count, &args);
                     break;
                 case 'f':
-                    perform_f(spec, str, &ch_count, args);
+                    perform_f(spec, str, &ch_count, &args);
                     break;
                 case '%':
                     str[ch_count++] = '%';
@@ -67,7 +67,7 @@ int s21_sprintf(char *str, const char *format, ...) {
     Шаблон:
         %[flags][width][.precision][length]specifier
 */
-int parsing_specifiers(int *idx, const char *format, Spec *spec) {
+void parsing_specifiers(int *idx, const char *format, Spec *spec) {
     bool has_error = 0;
     (*idx)++; // Чтобы повторно не считывать %
 
@@ -105,11 +105,7 @@ int parsing_specifiers(int *idx, const char *format, Spec *spec) {
     char allow_specifiers[] = "cdfsu%";
     if (strchr(allow_specifiers, format[*idx])) {
         spec->specifier = format[*idx];
-    } else {
-        has_error = 1;
     }
-
-    return has_error;
 }
 
 /*
@@ -192,27 +188,27 @@ void set_space(Spec spec, char *str, int *ch_count, long long num) {
     }
 }
 
-void perform_d(Spec spec, char *str, int *ch_count, va_list args) {
+void perform_d(Spec spec, char *str, int *ch_count, va_list *args) {
     long long num; // Делаем самый большой тип, чтобы была возможность ужать
     if (spec.length == 'l') {
-        num = va_arg(args, long);
+        num = va_arg(*args, long);
     } else if (spec.length == 'h') {
-        num = (short)va_arg(args, int);
+        num = (short)va_arg(*args, int);
     } else {
-        num = va_arg(args, int);
+        num = va_arg(*args, int);
     }
 
     write_int(spec, str, ch_count, num);  
 }
 
-void perform_c(Spec spec, char *str, int *ch_count, va_list args) {
+void perform_c(Spec spec, char *str, int *ch_count, va_list *args) {
 
 }
 
-void perform_s(Spec spec, char *str, int *ch_count, va_list args) {
+void perform_s(Spec spec, char *str, int *ch_count, va_list *args) {
 
 }
 
-void perform_f(Spec spec, char *str, int *ch_count, va_list args) {
+void perform_f(Spec spec, char *str, int *ch_count, va_list *args) {
 
 }
