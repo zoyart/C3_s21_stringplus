@@ -10,12 +10,12 @@
 
 /*
     @brief Форматирует строку и записывает её не в консоль, а в указанный буфер
-    
-    @param str буфер, куда будет записан результат
-    @param format строка формата ("Hello %d")
-    @param ... переменное число аргументов (числа, строки и т.д.)
 
-    @return Количество записанных символов (без \0)
+    @param str Буфер, куда будет записан результат
+    @param format Строка формата ("Hello %d")
+    @param ... Переменное кол-во аргументов (числа, строки и т.д.)
+
+    @return Кол-во записанных символов (без \0)
 
     @note Метод НЕ проверяет размер буфера
 */
@@ -62,15 +62,15 @@ int s21_sprintf(char *str, const char *format, ...) {
 }
 
 /*
-    Функционал:
-        Парсит спецификаторы после %
-    Возвращает:
-        Есть ли ошибка
-    Шаблон:
-        %[flags][width][.precision][length]specifier
+    @brief Парсит флаги и спецификаторы после знака %
+
+    @param idx это i во внешнем цикле, для пропуска последовательности, после её парсинга
+    @param format Символ в строке форматирования
+    @param spec Структура со всеми флагами и спецификаторами
+
+    @note Шаблон: %[flags][width][.precision][length]specifier
 */
 void parsing_specifiers(int *idx, const char *format, Spec *spec) {
-    bool has_error = 0;
     (*idx)++; // Чтобы повторно не считывать %
 
     while (format[*idx] == '-' || format[*idx] == '+' || format[*idx] == ' ') {
@@ -110,10 +110,7 @@ void parsing_specifiers(int *idx, const char *format, Spec *spec) {
     }
 }
 
-/*
-    Функционал:
-        С помощью рекурсии преобразуем число в символ 
-*/
+// С помощью рекурсии преобразуем число в символ 
 void write_digits(char *str, int *ch_count, long num) {
     if (num >= 10) {
         write_digits(str, ch_count, num / 10);
@@ -122,10 +119,7 @@ void write_digits(char *str, int *ch_count, long num) {
     str[(*ch_count)++] = '0' + (num % 10);
 }
 
-/*
-    Функционал:
-        С помощью рекурсии считаем кол-во символов
-*/
+// С помощью рекурсии считаем кол-во символов
 int count_digits(long num) {
     if (num < 0) num = -num; // минус не считаем
     
@@ -136,6 +130,14 @@ int count_digits(long num) {
     return 1 + count_digits(num / 10);  // Текущая цифра + остальные
 }
 
+/*
+    @brief Подставляет результат флагов и спецификатора в строку форматирования
+
+    @param spec Структура со всеми флагами и спецификаторами
+    @param str Строка форматирования
+    @param ch_count ID следующего для записи символа в строку
+    @param num Число, которое необходимо вставить в строку форматирования
+*/
 void write_int(Spec spec, char *str, int *ch_count, long num) {
     int digits_in_num = count_digits(num);
 
@@ -228,7 +230,7 @@ void set_space(Spec spec, char *str, int *ch_count, long num) {
 }
 
 void perform_d(Spec spec, char *str, int *ch_count, va_list *args) {
-    long num; // Делаем самый большой тип, чтобы была возможность ужать
+    long num; // Делаем большой тип, чтобы была возможность ужать
     if (spec.length == 'l') {
         num = va_arg(*args, long);
     } else if (spec.length == 'h') {
