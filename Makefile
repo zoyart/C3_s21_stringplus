@@ -7,7 +7,7 @@ GCOV_FLAGS = --coverage -fprofile-arcs -ftest-coverage
 s21_sprintf:
 	$(CC) -g main.c s21_string.c s21_sprintf.c $(CFLAGS) -o s21_sprintf
 	./s21_sprintf
-# 	rm -f s21_sprintf
+	rm -f s21_sprintf
 test:
 	bash tests/test_s21_cat.sh
 clean:
