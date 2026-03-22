@@ -202,6 +202,7 @@ void write_unsigned_int(Spec spec, char *str, int *ch_count, unsigned long num) 
     }
 
     // Сочетание precision = 0 и значение = 0 - даёт пропуск
+    // TODO: баг с нулём при default значении, нужно проверять ещё num
     if (!(spec.has_precision && spec.precision == 0 && num == 0)) {
         write_digits(str, ch_count, num);
     }
@@ -240,6 +241,10 @@ void perform_d(Spec spec, char *str, int *ch_count, va_list *args) {
     write_int(spec, str, ch_count, num);  
 }
 
+/*
+    NOTE: тяжело сделать одну функцию (write_...) для u и d, 
+    так как width и precision логически сильно связаны
+*/
 void perform_u(Spec spec, char *str, int *ch_count, va_list *args) {
     unsigned long num; // Делаем самый большой тип, чтобы была возможность ужать
     if (spec.length == 'l') {
@@ -279,6 +284,7 @@ void perform_c(Spec spec, char *str, int *ch_count, va_list *args) {
 /*
     NOTE:  точность применяется ДО ширины
     printf("%10.5s", "HelloWorld");
+
     Hello -> сначала точность
          Hello -> потом добавляется ширина
 */
@@ -301,7 +307,6 @@ void perform_s(Spec spec, char *str, int *ch_count, va_list *args) {
         str[(*ch_count)++] = arg_str[i];
     }
     
-
     // Пробелы справа (флаг -)
     if (spec.width && spec.flag_minus) {
         for (int k = 0; k < spec.width - arg_str_len; k++) {
@@ -310,6 +315,7 @@ void perform_s(Spec spec, char *str, int *ch_count, va_list *args) {
     }
 }
 
+// ne Danil lessss go!!!
 void perform_f(Spec spec, char *str, int *ch_count, va_list *args) {
 
 }
