@@ -9,7 +9,7 @@
 #include <stdbool.h>
 
 /**
- * @brief Форматирует строку и записывает её не в консоль, а в указанный буфер
+ * @brief Форматирует строку и записывает её в указанный буфер
  * 
  * @param str Буфер, куда будет записан результат
  * @param format Строка формата ("Hello %d")
@@ -216,12 +216,14 @@ void write_unsigned_int(Spec spec, char *str, int *ch_count, unsigned long num) 
     }
 }
 
+// Вставка знака "+" исходя из значения флага
 void set_plus(Spec spec, char *str, int *ch_count, long num) {
     if (spec.flag_plus && num >= 0) {
         str[(*ch_count)++] = '+';
     }
 }
 
+// Вставка (пробел) исходя из значения флага
 void set_space(Spec spec, char *str, int *ch_count, long num) {
     // NOTE: у плюса больше приоритет над пробелом
     if (spec.flag_space && !spec.flag_plus && num >= 0) {
@@ -229,6 +231,14 @@ void set_space(Spec spec, char *str, int *ch_count, long num) {
     }
 }
 
+/**
+ * @brief Обрабатывает спецификатор %d и вставляет целое число в строку форматирования
+ * 
+ * @param spec Структура со всеми флагами и спецификаторами
+ * @param str Строка форматирования (буфер для записи результата)
+ * @param ch_count Указатель на индекс следующего символа для записи в строку
+ * @param args Список аргументов переменной длины
+ */
 void perform_d(Spec spec, char *str, int *ch_count, va_list *args) {
     long num; // Делаем большой тип, чтобы была возможность ужать
     if (spec.length == 'l') {
@@ -242,10 +252,16 @@ void perform_d(Spec spec, char *str, int *ch_count, va_list *args) {
     write_int(spec, str, ch_count, num);  
 }
 
-/*
-    NOTE: тяжело сделать одну функцию (write_...) для u и d, 
-    так как width и precision логически сильно связаны
-*/
+/**
+ * @brief Обрабатывает спецификатор %u и вставляет беззнаковое целое число в строку форматирования
+ * 
+ * @param spec Структура со всеми флагами и спецификаторами
+ * @param str Строка форматирования (буфер для записи результата)
+ * @param ch_count Указатель на индекс следующего символа для записи в строку
+ * @param args Список аргументов переменной длины
+ * 
+ * @note тяжело сделать одну функцию (write_...) для u и d, так как width и precision логически сильно связаны
+ */
 void perform_u(Spec spec, char *str, int *ch_count, va_list *args) {
     unsigned long num; // Делаем самый большой тип, чтобы была возможность ужать
     if (spec.length == 'l') {
@@ -259,6 +275,14 @@ void perform_u(Spec spec, char *str, int *ch_count, va_list *args) {
     write_unsigned_int(spec, str, ch_count, num);  
 }
 
+/**
+ * @brief Обрабатывает спецификатор %c и вставляет символ в строку форматирования с учётом ширины и флагов
+ * 
+ * @param spec Структура со всеми флагами и спецификаторами
+ * @param str Строка форматирования (буфер для записи результата)
+ * @param ch_count Указатель на индекс следующего символа для записи в строку
+ * @param args Список аргументов переменной длины
+ */
 void perform_c(Spec spec, char *str, int *ch_count, va_list *args) {
     // NOTE: char автоматически повышается до int при передаче через ..., 
     // поэтому va_arg(*args, int), а потом кастовать обратно в char.
@@ -282,13 +306,16 @@ void perform_c(Spec spec, char *str, int *ch_count, va_list *args) {
     }
 }
 
-/*
-    NOTE:  точность применяется ДО ширины
-    printf("%10.5s", "HelloWorld");
-
-    Hello -> сначала точность
-         Hello -> потом добавляется ширина
-*/
+ /**
+ * @brief Обрабатывает спецификатор %s и вставляет строку в строку форматирования с учётом ширины и precision
+ * 
+ * @param spec Структура со всеми флагами и спецификаторами
+ * @param str Строка форматирования (буфер для записи результата)
+ * @param ch_count Указатель на индекс следующего символа для записи в строку
+ * @param args Список аргументов переменной длины
+ * 
+ * @note Точность применяется ДО ширины printf("%10.5s", "HelloWorld");
+ */
 void perform_s(Spec spec, char *str, int *ch_count, va_list *args) {
     char *arg_str = va_arg(*args, char *);
     int arg_str_len = strlen(arg_str);
@@ -316,7 +343,14 @@ void perform_s(Spec spec, char *str, int *ch_count, va_list *args) {
     }
 }
 
-// ne Danil lessss go!!!
+/**
+ * @brief Обрабатывает спецификатор %f и вставляет число с плавающей точкой в строку форматирования
+ * 
+ * @param spec Структура со всеми флагами и спецификаторами
+ * @param str Строка форматирования (буфер для записи результата)
+ * @param ch_count Указатель на индекс следующего символа для записи в строку
+ * @param args Список аргументов переменной длины
+ */
 void perform_f(Spec spec, char *str, int *ch_count, va_list *args) {
 
 }
